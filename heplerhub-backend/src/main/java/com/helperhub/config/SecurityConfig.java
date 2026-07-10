@@ -1,6 +1,7 @@
 package com.helperhub.config;
 
 import com.helperhub.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,14 +30,19 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                // Disable CSRF
                 .csrf(csrf -> csrf.disable())
 
+                // Stateless Session
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
 
+                // Public Endpoints
                 .authorizeHttpRequests(auth -> auth
-
                         .requestMatchers(
+                                "/",
+                                "/error",
                                 "/auth/**",
 
                                 "/swagger-ui/**",
@@ -45,14 +51,23 @@ public class SecurityConfig {
                                 "/v3/api-docs",
                                 "/swagger-resources/**",
                                 "/webjars/**"
-
                         ).permitAll()
 
                         .anyRequest().authenticated()
                 )
 
-                // REMOVE httpBasic()
+                // Return 401 instead of Browser Login Popup
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(
+                                (request, response, authException) ->
+                                        response.sendError(
+                                                HttpServletResponse.SC_UNAUTHORIZED,
+                                                "Unauthorized"
+                                        )
+                        )
+                )
 
+                // JWT Filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class

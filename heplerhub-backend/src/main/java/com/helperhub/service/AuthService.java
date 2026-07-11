@@ -22,10 +22,8 @@ public class AuthService {
     @Autowired
     private JwtService jwtService;
 
-    // Register User
     public User register(RegisterRequest request) {
 
-        // Check if email already exists
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already registered");
         }
@@ -35,31 +33,39 @@ public class AuthService {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
-
-        // Encrypt Password
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        // Default Role
+        user.setPassword(
+                passwordEncoder.encode(request.getPassword())
+        );
         user.setRole("USER");
 
         return userRepository.save(user);
     }
 
-    // Login User
     public LoginResponse login(LoginRequest request) {
 
-        // Find user by email
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository
+                .findByEmail(request.getEmail())
+                .orElseThrow(
+                        () -> new RuntimeException("User not found")
+                );
 
-        // Check password
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(
+                request.getPassword(),
+                user.getPassword())) {
+
             throw new RuntimeException("Invalid password");
         }
 
-        // Generate JWT Token
-        String token = jwtService.generateToken(user.getEmail());
+        String token =
+                jwtService.generateToken(user.getEmail());
 
-        return new LoginResponse(token, "Login Successful");
+        return new LoginResponse(
+                token,
+                "Login Successful",
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole()
+        );
     }
 }

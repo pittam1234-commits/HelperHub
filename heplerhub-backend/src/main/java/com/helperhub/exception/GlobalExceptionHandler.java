@@ -3,11 +3,14 @@ package com.helperhub.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     // Resource Not Found
@@ -21,9 +24,47 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND.value(),
                 "NOT FOUND",
                 ex.getMessage(),
-                request.getRequestURI());
+                request.getRequestURI()
+        );
 
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    // Static Resource / Invalid URL Not Found
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> handleNoResourceFound(
+            NoResourceFoundException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "NOT FOUND",
+                "Resource not found",
+                request.getRequestURI()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    // Method Not Allowed
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiError> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.METHOD_NOT_ALLOWED.value(),
+                "METHOD NOT ALLOWED",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return new ResponseEntity<>(
+                error,
+                HttpStatus.METHOD_NOT_ALLOWED
+        );
     }
 
     // Illegal Argument
@@ -37,7 +78,8 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "BAD REQUEST",
                 ex.getMessage(),
-                request.getRequestURI());
+                request.getRequestURI()
+        );
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
@@ -53,12 +95,16 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "INTERNAL SERVER ERROR",
                 ex.getMessage(),
-                request.getRequestURI());
+                request.getRequestURI()
+        );
 
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(
+                error,
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
-    // Any Exception
+    // Any Other Exception
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleException(
             Exception ex,
@@ -67,10 +113,14 @@ public class GlobalExceptionHandler {
         ApiError error = new ApiError(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "ERROR",
+                "INTERNAL SERVER ERROR",
                 ex.getMessage(),
-                request.getRequestURI());
+                request.getRequestURI()
+        );
 
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(
+                error,
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 }

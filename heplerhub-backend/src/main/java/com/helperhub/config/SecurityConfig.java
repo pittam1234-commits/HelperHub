@@ -5,10 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-<<<<<<< HEAD
-=======
-
->>>>>>> 34a8170f4808bd5747bff4a799badc0cdd572b62
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -32,33 +28,19 @@ public class SecurityConfig {
             throws Exception {
 
         http
-<<<<<<< HEAD
-=======
-                // Disable CSRF
->>>>>>> 34a8170f4808bd5747bff4a799badc0cdd572b62
                 .csrf(csrf -> csrf.disable())
 
-                // Stateless Session
                 .sessionManagement(session ->
-<<<<<<< HEAD
                         session.sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS
                         )
-=======
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
->>>>>>> 34a8170f4808bd5747bff4a799badc0cdd572b62
                 )
 
-                // Public Endpoints
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
                                 "/error",
                                 "/auth/**",
-<<<<<<< HEAD
-=======
-
->>>>>>> 34a8170f4808bd5747bff4a799badc0cdd572b62
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
@@ -69,10 +51,6 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-<<<<<<< HEAD
-=======
-                // Return 401 instead of Browser Login Popup
->>>>>>> 34a8170f4808bd5747bff4a799badc0cdd572b62
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(
                                 (request, response, authException) ->
@@ -83,7 +61,6 @@ public class SecurityConfig {
                         )
                 )
 
-                // JWT Filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class

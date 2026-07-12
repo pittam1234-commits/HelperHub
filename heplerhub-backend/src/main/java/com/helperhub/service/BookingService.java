@@ -110,7 +110,44 @@ public class BookingService {
         booking.setStatus("REJECTED");
 
         return repository.save(booking);
-    }
+    }// Get Bookings By Worker
+public List<Booking> getBookingsByWorker(Long workerId) {
+
+    return repository.findByWorkerId(workerId);
+
+}
+
+// Get Bookings By User
+public List<Booking> getBookingsByUser(Long userId) {
+
+    return repository.findByUserId(userId);
+
+}
+
+// Get Bookings By Status
+public List<Booking> getBookingsByStatus(String status) {
+
+    return repository.findByStatus(status);
+
+}
+
+// Get Bookings By Worker And Status
+public List<Booking> getBookingsByWorkerAndStatus(
+        Long workerId,
+        String status) {
+
+    return repository.findByWorkerIdAndStatus(workerId, status);
+
+}
+
+// Get Bookings By User And Status
+public List<Booking> getBookingsByUserAndStatus(
+        Long userId,
+        String status) {
+
+    return repository.findByUserIdAndStatus(userId, status);
+
+}
 
     public void deleteBooking(Long id) {
 

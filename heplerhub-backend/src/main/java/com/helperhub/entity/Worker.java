@@ -16,6 +16,7 @@ public class Worker {
 
     private String phone;
 
+    @Column(unique = true)
     private String email;
 
     private String city;
@@ -32,14 +33,22 @@ public class Worker {
     private String imageUrl;
 
     public Worker() {
-        this.status = "AVAILABLE";
+        this.status = "ACTIVE";
         this.available = true;
     }
 
-    public Worker(Long id, String name, String category, String phone,
-                  String email, String city, int experience,
-                  double pricePerHour, boolean available,
-                  String status, String imageUrl) {
+    public Worker(
+            Long id,
+            String name,
+            String category,
+            String phone,
+            String email,
+            String city,
+            int experience,
+            double pricePerHour,
+            boolean available,
+            String status,
+            String imageUrl) {
 
         this.id = id;
         this.name = name;
@@ -131,12 +140,17 @@ public class Worker {
     }
 
     public void setStatus(String status) {
+
         this.status = status;
 
-        if(status.equalsIgnoreCase("AVAILABLE")){
-            this.available=true;
-        }else{
-            this.available=false;
+        if ("ACTIVE".equalsIgnoreCase(status)
+                || "AVAILABLE".equalsIgnoreCase(status)) {
+
+            this.available = true;
+
+        } else {
+
+            this.available = false;
         }
     }
 

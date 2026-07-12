@@ -7,41 +7,57 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface WorkerRepository extends JpaRepository<Worker, Long> {
+public interface WorkerRepository
+        extends JpaRepository<Worker, Long> {
 
-    // Search by worker name
-    List<Worker> findByNameContainingIgnoreCase(String name);
+    Optional<Worker> findByEmail(String email);
 
-    // Search by category
-    List<Worker> findByCategoryIgnoreCase(String category);
+    boolean existsByEmail(String email);
 
-    // Search by city
-    List<Worker> findByCityIgnoreCase(String city);
+    List<Worker> findByNameContainingIgnoreCase(
+            String name
+    );
 
-    // Search by category and city
-    List<Worker> findByCategoryIgnoreCaseAndCityIgnoreCase(String category, String city);
+    List<Worker> findByCategoryIgnoreCase(
+            String category
+    );
 
-    // Search by experience
-    List<Worker> findByExperienceGreaterThanEqual(int experience);
+    List<Worker> findByCityIgnoreCase(
+            String city
+    );
 
-    // Search by price range
-    List<Worker> findByPricePerHourBetween(double minPrice, double maxPrice);
+    List<Worker>
+    findByCategoryIgnoreCaseAndCityIgnoreCase(
+            String category,
+            String city
+    );
 
-    // Search by maximum price
-    List<Worker> findByPricePerHourLessThanEqual(double price);
+    List<Worker>
+    findByExperienceGreaterThanEqual(
+            int experience
+    );
 
-    // Available workers
+    List<Worker> findByPricePerHourBetween(
+            double minPrice,
+            double maxPrice
+    );
+
+    List<Worker>
+    findByPricePerHourLessThanEqual(
+            double price
+    );
+
     List<Worker> findByAvailableTrue();
 
-    // Search by status
     List<Worker> findByStatus(String status);
 
-    // Pagination
     Page<Worker> findAll(Pageable pageable);
 
-    // Category with Pagination
-    Page<Worker> findByCategoryIgnoreCase(String category, Pageable pageable);
-
+    Page<Worker> findByCategoryIgnoreCase(
+            String category,
+            Pageable pageable
+    );
 }

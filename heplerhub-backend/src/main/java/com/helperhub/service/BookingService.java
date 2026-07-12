@@ -23,55 +23,65 @@ public class BookingService {
     @Autowired
     private WorkerRepository workerRepository;
 
-    @Autowired
-    private EmailService emailService;
-
-    // Save Booking
     public Booking saveBooking(Booking booking) {
 
+        System.out.println("BOOKING REQUEST RECEIVED");
+
+        if (booking.getUser() == null ||
+                booking.getUser().getId() == null) {
+            throw new RuntimeException("User ID is required");
+        }
+
+        if (booking.getWorker() == null ||
+                booking.getWorker().getId() == null) {
+            throw new RuntimeException("Worker ID is required");
+        }
+
+        System.out.println("USER ID: " + booking.getUser().getId());
+        System.out.println("WORKER ID: " + booking.getWorker().getId());
+
+        User user = userRepository
+                .findById(booking.getUser().getId())
+                .orElseThrow(() ->
+                        new RuntimeException("User Not Found"));
+
+        System.out.println("USER FOUND");
+
+        Worker worker = workerRepository
+                .findById(booking.getWorker().getId())
+                .orElseThrow(() ->
+                        new RuntimeException("Worker Not Found"));
+
+        System.out.println("WORKER FOUND");
+
+        booking.setUser(user);
+        booking.setWorker(worker);
         booking.setStatus("PENDING");
 
         Booking savedBooking = repository.save(booking);
 
-        User user = userRepository.findById(savedBooking.getUser().getId())
-                .orElseThrow(() -> new RuntimeException("User Not Found"));
-
-        Worker worker = workerRepository.findById(savedBooking.getWorker().getId())
-                .orElseThrow(() -> new RuntimeException("Worker Not Found"));
-
-        String subject = "Booking Confirmation - HelperHub";
-
-        String body =
-                "Hello " + user.getName() + ",\n\n" +
-                "Your booking has been placed successfully.\n\n" +
-                "Worker Name : " + worker.getName() + "\n" +
-                "Category : " + worker.getCategory() + "\n" +
-                "City : " + worker.getCity() + "\n" +
-                "Booking Date : " + savedBooking.getBookingDate() + "\n" +
-                "Booking Time : " + savedBooking.getBookingTime() + "\n" +
-                "Status : " + savedBooking.getStatus() + "\n\n" +
-                "Thank you for choosing HelperHub.";
-
-        emailService.sendEmail(user.getEmail(), subject, body);
+        System.out.println(
+                "BOOKING SAVED ID: " + savedBooking.getId()
+        );
 
         return savedBooking;
     }
 
-    // Get All Bookings
     public List<Booking> getAllBookings() {
         return repository.findAll();
     }
 
-    // Get Booking By ID
     public Booking getBooking(Long id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Booking Not Found"));
     }
 
-    // Update Booking
     public Booking updateBooking(Long id, Booking booking) {
 
         Booking existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking Not Found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Booking Not Found"));
 
         existing.setBookingDate(booking.getBookingDate());
         existing.setBookingTime(booking.getBookingTime());
@@ -80,54 +90,34 @@ public class BookingService {
         return repository.save(existing);
     }
 
-    // Approve Booking
     public Booking approveBooking(Long id) {
 
         Booking booking = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking Not Found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Booking Not Found"));
 
         booking.setStatus("APPROVED");
 
-        Booking updatedBooking = repository.save(booking);
-
-        User user = updatedBooking.getUser();
-
-        emailService.sendEmail(
-                user.getEmail(),
-                "Booking Approved",
-                "Hello " + user.getName()
-                        + ",\n\nYour booking has been APPROVED."
-                        + "\n\nThank you for choosing HelperHub."
-        );
-
-        return updatedBooking;
+        return repository.save(booking);
     }
 
-    // Reject Booking
     public Booking rejectBooking(Long id) {
 
         Booking booking = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking Not Found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Booking Not Found"));
 
         booking.setStatus("REJECTED");
 
-        Booking updatedBooking = repository.save(booking);
-
-        User user = updatedBooking.getUser();
-
-        emailService.sendEmail(
-                user.getEmail(),
-                "Booking Rejected",
-                "Hello " + user.getName()
-                        + ",\n\nSorry, your booking has been REJECTED."
-                        + "\nPlease book another worker."
-        );
-
-        return updatedBooking;
+        return repository.save(booking);
     }
 
-    // Delete Booking
     public void deleteBooking(Long id) {
+
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Booking Not Found");
+        }
+
         repository.deleteById(id);
     }
 }

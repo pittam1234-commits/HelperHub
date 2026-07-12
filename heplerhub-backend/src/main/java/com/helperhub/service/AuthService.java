@@ -31,6 +31,7 @@ public class AuthService {
 
     public User register(RegisterRequest request) {
 
+<<<<<<< HEAD
         if (userRepository
                 .findByEmail(request.getEmail())
                 .isPresent()) {
@@ -38,6 +39,10 @@ public class AuthService {
             throw new RuntimeException(
                     "Email already registered"
             );
+=======
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already registered");
+>>>>>>> origin/main
         }
 
         User user = new User();
@@ -45,6 +50,7 @@ public class AuthService {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
+<<<<<<< HEAD
 
         user.setPassword(
                 passwordEncoder.encode(
@@ -52,11 +58,17 @@ public class AuthService {
                 )
         );
 
+=======
+        user.setPassword(
+                passwordEncoder.encode(request.getPassword())
+        );
+>>>>>>> origin/main
         user.setRole("USER");
 
         return userRepository.save(user);
     }
 
+<<<<<<< HEAD
     @Transactional
     public Worker registerWorker(
             WorkerRegisterRequest request) {
@@ -155,11 +167,34 @@ public class AuthService {
             workerId = worker.getId();
         }
 
+=======
+    public LoginResponse login(LoginRequest request) {
+
+        User user = userRepository
+                .findByEmail(request.getEmail())
+                .orElseThrow(
+                        () -> new RuntimeException("User not found")
+                );
+
+        if (!passwordEncoder.matches(
+                request.getPassword(),
+                user.getPassword())) {
+
+            throw new RuntimeException("Invalid password");
+        }
+
+        String token =
+                jwtService.generateToken(user.getEmail());
+
+>>>>>>> origin/main
         return new LoginResponse(
                 token,
                 "Login Successful",
                 user.getId(),
+<<<<<<< HEAD
                 workerId,
+=======
+>>>>>>> origin/main
                 user.getName(),
                 user.getEmail(),
                 user.getRole()

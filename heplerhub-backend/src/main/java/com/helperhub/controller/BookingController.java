@@ -58,4 +58,45 @@ public class BookingController {
         service.deleteBooking(id);
         return "Booking Cancelled Successfully";
     }
+    @GetMapping("/worker/{workerId}")
+public List<Booking> getBookingsByWorker(
+        @PathVariable Long workerId) {
+
+    return service.getBookingsByWorker(workerId);
+
+}
+
+@GetMapping("/user/{userId}")
+public List<Booking> getBookingsByUser(
+        @PathVariable Long userId) {
+
+    return service.getBookingsByUser(userId);
+
+}
+
+@GetMapping("/status/{status}")
+public List<Booking> getBookingsByStatus(
+        @PathVariable String status) {
+
+    return service.getBookingsByStatus(status);
+
+}
+
+@GetMapping("/worker/{workerId}/status/{status}")
+public List<Booking> getBookingsByWorkerAndStatus(
+        @PathVariable Long workerId,
+        @PathVariable String status) {
+
+    return service.getBookingsByWorkerAndStatus(workerId, status);
+
+}
+
+@GetMapping("/user/{userId}/status/{status}")
+public List<Booking> getBookingsByUserAndStatus(
+        @PathVariable Long userId,
+        @PathVariable String status) {
+
+    return service.getBookingsByUserAndStatus(userId, status);
+
+}
 }

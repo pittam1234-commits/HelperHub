@@ -53,11 +53,12 @@ public class BookingController {
     }
 
     // Delete Booking
-    @DeleteMapping("/{id}")
-    public String delete(@PathVariable Long id) {
-        service.deleteBooking(id);
-        return "Booking Cancelled Successfully";
-    }
+    @PutMapping("/{id}/cancel")
+public Booking cancelBooking(@PathVariable Long id) {
+
+    return service.cancelBooking(id);
+
+}
     @GetMapping("/worker/{workerId}")
 public List<Booking> getBookingsByWorker(
         @PathVariable Long workerId) {

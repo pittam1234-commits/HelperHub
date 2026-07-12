@@ -156,5 +156,14 @@ public List<Booking> getBookingsByUserAndStatus(
         }
 
         repository.deleteById(id);
-    }
+    }public Booking cancelBooking(Long id) {
+
+    Booking booking = repository.findById(id)
+            .orElseThrow(() ->
+                    new RuntimeException("Booking Not Found"));
+
+    booking.setStatus("CANCELLED");
+
+    return repository.save(booking);
+}
 }

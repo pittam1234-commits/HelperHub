@@ -25,8 +25,6 @@ public class BookingService {
 
     public Booking saveBooking(Booking booking) {
 
-        System.out.println("BOOKING REQUEST RECEIVED");
-
         if (booking.getUser() == null ||
                 booking.getUser().getId() == null) {
             throw new RuntimeException("User ID is required");
@@ -37,34 +35,21 @@ public class BookingService {
             throw new RuntimeException("Worker ID is required");
         }
 
-        System.out.println("USER ID: " + booking.getUser().getId());
-        System.out.println("WORKER ID: " + booking.getWorker().getId());
-
         User user = userRepository
                 .findById(booking.getUser().getId())
                 .orElseThrow(() ->
                         new RuntimeException("User Not Found"));
-
-        System.out.println("USER FOUND");
 
         Worker worker = workerRepository
                 .findById(booking.getWorker().getId())
                 .orElseThrow(() ->
                         new RuntimeException("Worker Not Found"));
 
-        System.out.println("WORKER FOUND");
-
         booking.setUser(user);
         booking.setWorker(worker);
         booking.setStatus("PENDING");
 
-        Booking savedBooking = repository.save(booking);
-
-        System.out.println(
-                "BOOKING SAVED ID: " + savedBooking.getId()
-        );
-
-        return savedBooking;
+        return repository.save(booking);
     }
 
     public List<Booking> getAllBookings() {
@@ -77,15 +62,25 @@ public class BookingService {
                         new RuntimeException("Booking Not Found"));
     }
 
-    public Booking updateBooking(Long id, Booking booking) {
+    public Booking updateBooking(
+            Long id,
+            Booking booking) {
 
         Booking existing = repository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException("Booking Not Found"));
 
-        existing.setBookingDate(booking.getBookingDate());
-        existing.setBookingTime(booking.getBookingTime());
-        existing.setStatus(booking.getStatus());
+        existing.setBookingDate(
+                booking.getBookingDate()
+        );
+
+        existing.setBookingTime(
+                booking.getBookingTime()
+        );
+
+        existing.setStatus(
+                booking.getStatus()
+        );
 
         return repository.save(existing);
     }
@@ -110,60 +105,94 @@ public class BookingService {
         booking.setStatus("REJECTED");
 
         return repository.save(booking);
-    }// Get Bookings By Worker
-public List<Booking> getBookingsByWorker(Long workerId) {
+    }
 
-    return repository.findByWorkerId(workerId);
+    public Booking cancelBooking(Long id) {
 
-}
+        Booking booking = repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Booking Not Found"));
 
-// Get Bookings By User
-public List<Booking> getBookingsByUser(Long userId) {
+        if (!"PENDING".equalsIgnoreCase(
+                booking.getStatus())) {
 
-    return repository.findByUserId(userId);
+            throw new RuntimeException(
+                    "Only PENDING booking can be cancelled"
+            );
+        }
 
-}
+        booking.setStatus("CANCELLED");
 
-// Get Bookings By Status
-public List<Booking> getBookingsByStatus(String status) {
+        return repository.save(booking);
+    }
 
-    return repository.findByStatus(status);
+    public Booking completeBooking(Long id) {
 
-}
+        Booking booking = repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Booking Not Found"));
 
-// Get Bookings By Worker And Status
-public List<Booking> getBookingsByWorkerAndStatus(
-        Long workerId,
-        String status) {
+        if (!"PAID".equalsIgnoreCase(
+                booking.getStatus())) {
 
-    return repository.findByWorkerIdAndStatus(workerId, status);
+            throw new RuntimeException(
+                    "Only PAID booking can be completed"
+            );
+        }
 
-}
+        booking.setStatus("COMPLETED");
 
-// Get Bookings By User And Status
-public List<Booking> getBookingsByUserAndStatus(
-        Long userId,
-        String status) {
+        return repository.save(booking);
+    }
 
-    return repository.findByUserIdAndStatus(userId, status);
+    public List<Booking> getBookingsByWorker(
+            Long workerId) {
 
-}
+        return repository.findByWorkerId(workerId);
+    }
+
+    public List<Booking> getBookingsByUser(
+            Long userId) {
+
+        return repository.findByUserId(userId);
+    }
+
+    public List<Booking> getBookingsByStatus(
+            String status) {
+
+        return repository.findByStatus(status);
+    }
+
+    public List<Booking> getBookingsByWorkerAndStatus(
+            Long workerId,
+            String status) {
+
+        return repository
+                .findByWorkerIdAndStatus(
+                        workerId,
+                        status
+                );
+    }
+
+    public List<Booking> getBookingsByUserAndStatus(
+            Long userId,
+            String status) {
+
+        return repository
+                .findByUserIdAndStatus(
+                        userId,
+                        status
+                );
+    }
 
     public void deleteBooking(Long id) {
 
         if (!repository.existsById(id)) {
-            throw new RuntimeException("Booking Not Found");
+            throw new RuntimeException(
+                    "Booking Not Found"
+            );
         }
 
         repository.deleteById(id);
-    }public Booking cancelBooking(Long id) {
-
-    Booking booking = repository.findById(id)
-            .orElseThrow(() ->
-                    new RuntimeException("Booking Not Found"));
-
-    booking.setStatus("CANCELLED");
-
-    return repository.save(booking);
-}
+    }
 }

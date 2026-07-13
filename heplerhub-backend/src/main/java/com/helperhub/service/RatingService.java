@@ -2,12 +2,8 @@ package com.helperhub.service;
 
 import com.helperhub.entity.Booking;
 import com.helperhub.entity.Rating;
-import com.helperhub.entity.User;
-import com.helperhub.entity.Worker;
 import com.helperhub.repository.BookingRepository;
 import com.helperhub.repository.RatingRepository;
-import com.helperhub.repository.UserRepository;
-import com.helperhub.repository.WorkerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +14,6 @@ public class RatingService {
 
     @Autowired
     private RatingRepository repository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private WorkerRepository workerRepository;
 
     @Autowired
     private BookingRepository bookingRepository;
@@ -38,8 +28,7 @@ public class RatingService {
             );
         }
 
-        Long bookingId =
-                rating.getBooking().getId();
+        Long bookingId = rating.getBooking().getId();
 
         Booking booking = bookingRepository
                 .findById(bookingId)
@@ -71,22 +60,8 @@ public class RatingService {
             );
         }
 
-        User user = userRepository
-                .findById(booking.getUser().getId())
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "User Not Found"
-                        ));
-
-        Worker worker = workerRepository
-                .findById(booking.getWorker().getId())
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Worker Not Found"
-                        ));
-
-        rating.setUser(user);
-        rating.setWorker(worker);
+        rating.setUser(booking.getUser());
+        rating.setWorker(booking.getWorker());
         rating.setBooking(booking);
 
         return repository.save(rating);
@@ -97,7 +72,6 @@ public class RatingService {
     }
 
     public Rating getRating(Long id) {
-
         return repository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException(
@@ -105,9 +79,7 @@ public class RatingService {
                         ));
     }
 
-    public List<Rating> getRatingsByWorker(
-            Long workerId) {
-
+    public List<Rating> getRatingsByWorker(Long workerId) {
         return repository.findByWorkerId(workerId);
     }
 

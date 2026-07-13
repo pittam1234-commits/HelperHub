@@ -10,12 +10,11 @@ import java.util.List;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
-    // Get payment by booking
     Payment findByBooking(Booking booking);
 
-    // Get payments by status
+    Payment findByBookingId(Long bookingId);
+
     List<Payment> findByPaymentStatus(String paymentStatus);
 
-    // Get payments by payment method
     List<Payment> findByPaymentMethod(String paymentMethod);
 }

@@ -28,7 +28,8 @@ public class RatingService {
             );
         }
 
-        Long bookingId = rating.getBooking().getId();
+        Long bookingId =
+                rating.getBooking().getId();
 
         Booking booking = bookingRepository
                 .findById(bookingId)
@@ -72,6 +73,7 @@ public class RatingService {
     }
 
     public Rating getRating(Long id) {
+
         return repository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException(
@@ -79,7 +81,9 @@ public class RatingService {
                         ));
     }
 
-    public List<Rating> getRatingsByWorker(Long workerId) {
+    public List<Rating> getRatingsByWorker(
+            Long workerId) {
+
         return repository.findByWorkerId(workerId);
     }
 
@@ -101,9 +105,17 @@ public class RatingService {
         return total / ratings.size();
     }
 
+    public boolean reviewExists(Long bookingId) {
+
+        return repository.existsByBookingId(
+                bookingId
+        );
+    }
+
     public void deleteRating(Long id) {
 
         if (!repository.existsById(id)) {
+
             throw new RuntimeException(
                     "Rating Not Found"
             );

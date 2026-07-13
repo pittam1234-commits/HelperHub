@@ -3,7 +3,15 @@ package com.helperhub.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "ratings")
+@Table(
+        name = "ratings",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_rating_booking",
+                        columnNames = "booking_id"
+                )
+        }
+)
 public class Rating {
 
     @Id
@@ -23,20 +31,28 @@ public class Rating {
     @JoinColumn(name = "worker_id")
     private Worker worker;
 
-    // Default Constructor
+    @OneToOne
+    @JoinColumn(name = "booking_id", unique = true)
+    private Booking booking;
+
     public Rating() {
     }
 
-    // Parameterized Constructor
-    public Rating(Long id, int stars, String review, User user, Worker worker) {
+    public Rating(
+            Long id,
+            int stars,
+            String review,
+            User user,
+            Worker worker,
+            Booking booking) {
+
         this.id = id;
         this.stars = stars;
         this.review = review;
         this.user = user;
         this.worker = worker;
+        this.booking = booking;
     }
-
-    // Getters & Setters
 
     public Long getId() {
         return id;
@@ -78,14 +94,11 @@ public class Rating {
         this.worker = worker;
     }
 
-    @Override
-    public String toString() {
-        return "Rating{" +
-                "id=" + id +
-                ", stars=" + stars +
-                ", review='" + review + '\'' +
-                ", user=" + (user != null ? user.getId() : null) +
-                ", worker=" + (worker != null ? worker.getId() : null) +
-                '}';
+    public Booking getBooking() {
+        return booking;
+    }
+
+    public void setBooking(Booking booking) {
+        this.booking = booking;
     }
 }

@@ -9,46 +9,60 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/ratings")
-@CrossOrigin(origins = "*")
+@CrossOrigin("*")
 public class RatingController {
 
     @Autowired
-    private RatingService service;
+    private RatingService ratingService;
 
-    // Add Rating
     @PostMapping
-    public Rating save(@RequestBody Rating rating) {
-        return service.saveRating(rating);
+    public Rating saveRating(
+            @RequestBody Rating rating) {
+
+        return ratingService.saveRating(rating);
     }
 
-    // Get All Ratings
     @GetMapping
-    public List<Rating> getAll() {
-        return service.getAllRatings();
+    public List<Rating> getAllRatings() {
+
+        return ratingService.getAllRatings();
     }
 
-    // Get Rating By Id
     @GetMapping("/{id}")
-    public Rating getById(@PathVariable Long id) {
-        return service.getRating(id);
+    public Rating getRating(
+            @PathVariable Long id) {
+
+        return ratingService.getRating(id);
     }
 
-    // Get Ratings Of One Worker
     @GetMapping("/worker/{workerId}")
-    public List<Rating> getWorkerRatings(@PathVariable Long workerId) {
-        return service.getRatingsByWorker(workerId);
+    public List<Rating> getRatingsByWorker(
+            @PathVariable Long workerId) {
+
+        return ratingService
+                .getRatingsByWorker(workerId);
     }
 
-    // Average Rating
     @GetMapping("/average/{workerId}")
-    public double getAverageRating(@PathVariable Long workerId) {
-        return service.getAverageRating(workerId);
+    public double getAverageRating(
+            @PathVariable Long workerId) {
+
+        return ratingService
+                .getAverageRating(workerId);
     }
 
-    // Delete Rating
+    @GetMapping("/booking/{bookingId}/exists")
+    public boolean reviewExists(
+            @PathVariable Long bookingId) {
+
+        return ratingService
+                .reviewExists(bookingId);
+    }
+
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable Long id) {
-        service.deleteRating(id);
-        return "Rating Deleted Successfully";
+    public void deleteRating(
+            @PathVariable Long id) {
+
+        ratingService.deleteRating(id);
     }
 }

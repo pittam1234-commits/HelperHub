@@ -20,74 +20,85 @@ public class PaymentService {
     @Autowired
     private BookingRepository bookingRepository;
 
-    // Save Payment (Used by Unit Tests)
     public Payment savePayment(Payment payment) {
         return paymentRepository.save(payment);
     }
 
-    // Process Payment
-    public Payment makePayment(Long bookingId,
-                               double amount,
-                               String paymentMethod) {
+    public Payment makePayment(
+            Long bookingId,
+            double amount,
+            String paymentMethod) {
 
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking Not Found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Booking Not Found"));
+
+        Payment existingPayment =
+                paymentRepository.findByBookingId(bookingId);
+
+        if (existingPayment != null) {
+            throw new RuntimeException(
+                    "Payment already completed for Booking #" + bookingId
+            );
+        }
+
+        if (!"APPROVED".equalsIgnoreCase(booking.getStatus())) {
+            throw new RuntimeException(
+                    "Payment allowed only for APPROVED booking"
+            );
+        }
 
         Payment payment = new Payment();
 
         payment.setBooking(booking);
         payment.setAmount(amount);
         payment.setPaymentMethod(paymentMethod);
-
-        // Generate Transaction ID
         payment.setTransactionId(UUID.randomUUID().toString());
-
-        // Payment Status
         payment.setPaymentStatus("SUCCESS");
-
-        // Payment Date
         payment.setPaymentDate(LocalDateTime.now());
 
-        return paymentRepository.save(payment);
+        Payment savedPayment = paymentRepository.save(payment);
+
+        booking.setStatus("PAID");
+        bookingRepository.save(booking);
+
+        return savedPayment;
     }
 
-    // Get All Payments
     public List<Payment> getAllPayments() {
         return paymentRepository.findAll();
     }
 
-    // Get Payment By Booking
     public Payment getPaymentByBooking(Long bookingId) {
 
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking Not Found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Booking Not Found"));
 
         return paymentRepository.findByBooking(booking);
     }
 
-    // Get Payments By Status
     public List<Payment> getPaymentsByStatus(String status) {
         return paymentRepository.findByPaymentStatus(status);
     }
 
-    // Get Payments By Method
     public List<Payment> getPaymentsByMethod(String method) {
         return paymentRepository.findByPaymentMethod(method);
     }
 
-    // Update Payment Status
-    public Payment updatePaymentStatus(Long paymentId,
-                                       String status) {
+    public Payment updatePaymentStatus(
+            Long paymentId,
+            String status) {
 
         Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Payment Not Found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Payment Not Found"));
 
         payment.setPaymentStatus(status);
 
         return paymentRepository.save(payment);
     }
 
-    // Delete Payment
     public void deletePayment(Long paymentId) {
         paymentRepository.deleteById(paymentId);
     }

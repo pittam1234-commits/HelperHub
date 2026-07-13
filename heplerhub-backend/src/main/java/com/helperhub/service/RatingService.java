@@ -1,8 +1,10 @@
 package com.helperhub.service;
 
+import com.helperhub.entity.Booking;
 import com.helperhub.entity.Rating;
 import com.helperhub.entity.User;
 import com.helperhub.entity.Worker;
+import com.helperhub.repository.BookingRepository;
 import com.helperhub.repository.RatingRepository;
 import com.helperhub.repository.UserRepository;
 import com.helperhub.repository.WorkerRepository;
@@ -23,21 +25,41 @@ public class RatingService {
     @Autowired
     private WorkerRepository workerRepository;
 
+    @Autowired
+    private BookingRepository bookingRepository;
+
     public Rating saveRating(Rating rating) {
 
-        if (rating.getUser() == null ||
-                rating.getUser().getId() == null) {
+        if (rating.getBooking() == null ||
+                rating.getBooking().getId() == null) {
 
             throw new RuntimeException(
-                    "User ID is required"
+                    "Booking ID is required"
             );
         }
 
-        if (rating.getWorker() == null ||
-                rating.getWorker().getId() == null) {
+        Long bookingId =
+                rating.getBooking().getId();
+
+        Booking booking = bookingRepository
+                .findById(bookingId)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Booking Not Found"
+                        ));
+
+        if (!"COMPLETED".equalsIgnoreCase(
+                booking.getStatus())) {
 
             throw new RuntimeException(
-                    "Worker ID is required"
+                    "Review allowed only for COMPLETED booking"
+            );
+        }
+
+        if (repository.existsByBookingId(bookingId)) {
+
+            throw new RuntimeException(
+                    "Review already submitted for this booking"
             );
         }
 
@@ -50,14 +72,14 @@ public class RatingService {
         }
 
         User user = userRepository
-                .findById(rating.getUser().getId())
+                .findById(booking.getUser().getId())
                 .orElseThrow(() ->
                         new RuntimeException(
                                 "User Not Found"
                         ));
 
         Worker worker = workerRepository
-                .findById(rating.getWorker().getId())
+                .findById(booking.getWorker().getId())
                 .orElseThrow(() ->
                         new RuntimeException(
                                 "Worker Not Found"
@@ -65,6 +87,7 @@ public class RatingService {
 
         rating.setUser(user);
         rating.setWorker(worker);
+        rating.setBooking(booking);
 
         return repository.save(rating);
     }
@@ -109,7 +132,6 @@ public class RatingService {
     public void deleteRating(Long id) {
 
         if (!repository.existsById(id)) {
-
             throw new RuntimeException(
                     "Rating Not Found"
             );

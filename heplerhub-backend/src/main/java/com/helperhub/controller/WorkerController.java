@@ -137,22 +137,24 @@ public class WorkerController {
     }
 
     // Upload Worker Image
-    @PostMapping("/{id}/upload")
-    public ResponseEntity<String> uploadWorkerImage(
-            @PathVariable Long id,
-            @RequestParam("file") MultipartFile file) {
+@PostMapping("/{id}/upload")
+public ResponseEntity<String> uploadWorkerImage(
+        @PathVariable Long id,
+        @RequestParam("file") MultipartFile file) {
 
-        try {
+    try {
 
-            String fileName = workerService.uploadImage(id, file);
+        String fileName = workerService.uploadImage(id, file);
 
-            return ResponseEntity.ok(
-                    "Image Uploaded Successfully : " + fileName);
+        return ResponseEntity.ok(
+                "Image Uploaded Successfully : " + fileName);
 
-        } catch (IOException e) {
+    } catch (Exception e) {
 
-            return ResponseEntity.badRequest()
-                    .body("Image Upload Failed");
-        }
+        e.printStackTrace();
+
+        return ResponseEntity.badRequest()
+                .body(e.getMessage());
     }
+}
 }

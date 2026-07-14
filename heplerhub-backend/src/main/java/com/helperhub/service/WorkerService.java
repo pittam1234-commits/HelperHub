@@ -21,7 +21,8 @@ public class WorkerService {
     @Autowired
     private WorkerRepository repository;
 
-    private static final String UPLOAD_DIR = "uploads/";
+    private static final String UPLOAD_DIR =
+        System.getProperty("user.dir") + File.separator + "uploads";
 
     // Add Worker
     public Worker saveWorker(Worker worker) {
@@ -150,7 +151,7 @@ public class WorkerService {
                 + "_"
                 + file.getOriginalFilename();
 
-        File destination = new File(UPLOAD_DIR + fileName);
+        File destination = new File(directory, fileName);
 
         file.transferTo(destination);
 

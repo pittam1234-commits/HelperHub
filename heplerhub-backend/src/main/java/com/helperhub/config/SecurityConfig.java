@@ -1,7 +1,6 @@
 package com.helperhub.config;
 
 import com.helperhub.security.JwtAuthenticationFilter;
-import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,16 +15,63 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+
 @Configuration
 public class SecurityConfig {
 
     @Autowired
-    private JwtAuthenticationFilter
-            jwtAuthenticationFilter;
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration configuration =
+                new CorsConfiguration();
+
+        configuration.setAllowedOriginPatterns(
+                Arrays.asList("*")
+        );
+
+        configuration.setAllowedMethods(
+                Arrays.asList(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "DELETE",
+                        "PATCH",
+                        "OPTIONS"
+                )
+        );
+
+        configuration.setAllowedHeaders(
+                Arrays.asList("*")
+        );
+
+        configuration.setExposedHeaders(
+                Arrays.asList("Authorization")
+        );
+
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration(
+                "/**",
+                configuration
+        );
+
+        return source;
     }
 
     @Bean
@@ -36,8 +82,11 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
 
-                .cors(cors -> {
-                })
+                .cors(cors ->
+                        cors.configurationSource(
+                                corsConfigurationSource()
+                        )
+                )
 
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
@@ -59,28 +108,8 @@ public class SecurityConfig {
                         )
                         .permitAll()
 
-                        .requestMatchers("/users/**")
+                        .requestMatchers("/**")
                         .authenticated()
-
-                        .requestMatchers("/admin/**")
-                        .authenticated()
-
-                        .anyRequest()
-                        .authenticated()
-                )
-
-                .exceptionHandling(exception ->
-                        exception.authenticationEntryPoint(
-                                (request,
-                                 response,
-                                 authException) ->
-
-                                        response.sendError(
-                                                HttpServletResponse
-                                                        .SC_UNAUTHORIZED,
-                                                "Unauthorized"
-                                        )
-                        )
                 )
 
                 .addFilterBefore(
